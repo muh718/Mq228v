@@ -1,7 +1,3 @@
-/**
- * questions.js
- * بنك الأسئلة المتولد آلياً لثانوية رضوى
- */
 const QUEST_BANK = { Radians: [], Areas: [], Functions: [] };
 
 function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
@@ -29,3 +25,4 @@ function tR(d) {
         QUEST_BANK.Functions.push({ id: `F_${i}`, q: `طول دورة الدالة <span class="math-ltr">y = cos(${b}θ)</span> هو:`, a: `<span class="math-ltr">${per}°</span>`, o: [`<span class="math-ltr">${per}°</span>`, `<span class="math-ltr">${(180 / b).toFixed(0)}°</span>`, `<span class="math-ltr">360°</span>`, `<span class="math-ltr">${(720 / b).toFixed(0)}°</span>`] });
     }
 })();
+
