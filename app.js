@@ -11,6 +11,8 @@ let seenIds = [], curIdx = 0, scoreVal = 0, currentRound = [];
 
 function showModal(type, title, desc, callback) {
     const modal = document.getElementById('custom-modal');
+    if(!modal) return false; // لحماية الكود من التوقف
+    
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-desc').innerText = desc;
     const mInput = document.getElementById('modal-input');
@@ -39,6 +41,7 @@ function showModal(type, title, desc, callback) {
         modal.classList.add('hidden');
         callback(null);
     };
+    return true;
 }
 
 async function boot() {
@@ -53,15 +56,28 @@ async function boot() {
 
 window.toggleAuth = (s) => {
     if(s) {
-        showModal('prompt', 'لوحة المعلم', 'الرجاء إدخال كلمة المرور السريّة:', (val) => {
+        // محاولة فتح النافذة الذكية، وإذا لم يجدها سيفتح النافذة العادية لضمان عمل الزر دائماً
+        const modalSuccess = showModal('prompt', 'لوحة المعلم', 'الرجاء إدخال كلمة المرور السريّة:', (val) => {
             if(val === "sdxc") { 
                 document.getElementById('scr-start').classList.add('hidden'); 
                 document.getElementById('scr-dash').classList.remove('hidden'); 
                 loadScores(); 
             } else if(val !== null) {
-                showModal('alert', 'عذراً', 'كلمة المرور التي أدخلتها غير صحيحة', () => {});
+                showModal('alert', 'عذراً', 'كلمة المرور غير صحيحة', () => {});
             }
         });
+        
+        // نظام الطوارئ (إذا لم تنسخ كود النافذة الذكية بشكل صحيح)
+        if(!modalSuccess) {
+            let p = prompt("الرجاء إدخال كلمة سر المعلم:");
+            if(p === "sdxc") {
+                document.getElementById('scr-start').classList.add('hidden'); 
+                document.getElementById('scr-dash').classList.remove('hidden'); 
+                loadScores();
+            } else if(p !== null) {
+                alert("كلمة المرور غير صحيحة");
+            }
+        }
     }
 };
 
@@ -74,7 +90,8 @@ window.startGame = () => {
     const n = document.getElementById('in-name').value.trim();
     const s = document.getElementById('in-sect').value.trim();
     if (n.split(" ").length < 3 || s === "") { 
-        showModal('alert', 'بيانات ناقصة', 'الرجاء إدخال اسمك الثلاثي ورقم الشعبة للمتابعة', () => {}); 
+        const m = showModal('alert', 'بيانات ناقصة', 'الرجاء إدخال اسمك الثلاثي ورقم الشعبة', () => {}); 
+        if(!m) alert('الرجاء إدخال اسمك الثلاثي ورقم الشعبة');
         return; 
     }
     const f = (arr) => arr.filter(q => !seenIds.includes(q.id)).sort(() => Math.random() - 0.5);
@@ -93,7 +110,6 @@ function render() {
     const q = currentRound[curIdx];
     document.getElementById('q-text').innerHTML = q.q; 
     
-    // الأمان لضمان عدم توقف الكود إذا لم يجد العنصر
     const idxEl = document.getElementById('q-idx');
     if (idxEl) idxEl.innerText = curIdx + 1; 
     
@@ -139,5 +155,4 @@ async function loadScores() {
 }
 
 window.onload = boot;
-
 
